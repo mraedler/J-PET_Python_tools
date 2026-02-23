@@ -4,26 +4,21 @@
 # Python libraries
 import sys
 import numpy as np
+from matplotlib import pyplot as plt
 
 # Auxiliary functions
 from CASToR.read_interfile import read_interfile
 from CASToR.vis import vis_3d
+from get_derenzo_image import get_ground_truth_derenzo_image, load_derenzo_image
+from get_derenzo_contrast import get_derenzo_contrast_function
 
 
 def main():
-    iterations = np.concatenate([np.arange(1, 10), np.arange(10, 100, 10), np.arange(100, 700, 100)])
-    # iterations = np.array([1])
+    # iterations, imgs = load_derenzo_image('/Derenzo_400_ps_4_18_mm/2026-02-11_15-37-48/TB-BI_true/')
+    iterations, imgs = load_derenzo_image('/Derenzo_400_ps_4_18_mm_outside_non_collinearity/2026-02-21_20-22-47/TB-TB_true/', z_offset=755)
 
-    x, y, z, first_iteration = read_interfile('/home/martin/J-PET/CASToR_RECONS/RECONS/Derenzo_400_ps_4_18_mm/2026-02-09_11-41-45_copy/TB-TB_true/img_it1.hdr', return_grid=True)
-    z_selection = np.abs(z - (-755.)) < 25.
-
-    collected = np.zeros((first_iteration.shape[0], first_iteration.shape[1], iterations.size))
-    for ii in range(iterations.size):
-        img = read_interfile('/home/martin/J-PET/CASToR_RECONS/RECONS/Derenzo_400_ps_4_18_mm/2026-02-09_11-41-45_copy/ALL_true/img_it%d.hdr' % iterations[ii])
-        # vis_3d(img[:, :, z_selection])
-        collected[:, :, ii] = np.mean(img[:, :, z_selection], axis=-1)
-
-    vis_3d(collected)
+    # print(imgs.shape)
+    vis_3d(imgs[:, :, :, -1])
 
     return 0
 

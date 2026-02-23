@@ -20,13 +20,19 @@ def main():
 
     # Additional parameters
     # z_shift = -815.0  # mm
-    z_shift = 755.0  # mm
+    # z_shift = 755.0  # mm (inside the brain insert)
+    z_shift = -755.0  # mm (on the opposite side of the brian insert)
     length = 50.0  # mm
+
+    add_non_collinearity = True
 
     colors = np.array(['white', 'green', 'blue', 'cyan', 'magenta', 'yellow'])
 
     # mac_file = open('/home/martin/J-PET/Gate_mac_9.3/TB_J-PET_Brain_9.3/Sources/Derenzo_Cox.mac', 'w')
-    mac_file = open('/home/martin/J-PET/Gate_mac_9.4/New_TB_J-PET_Brain/Sources/Derenzo_Cox_3.mac', 'w')
+    # mac_file = open('/home/martin/J-PET/Gate_mac_9.4/New_TB_J-PET_Brain/Sources/Derenzo_Cox_3.mac', 'w')
+    # mac_file = open('/home/martin/J-PET/Gate_mac_9.4/New_TB_J-PET_Brain/Sources/Derenzo_Cox_3_outside.mac', 'w')
+    # mac_file = open('/home/martin/J-PET/Gate_mac_9.4/New_TB_J-PET_Brain/Sources/Derenzo_Cox_3_non_collinearity.mac', 'w')
+    mac_file = open('/home/martin/J-PET/Gate_mac_9.4/New_TB_J-PET_Brain/Sources/Derenzo_Cox_3_outside_non_collinearity.mac', 'w')
     mac_file.write('#=====================================================\n'
                    '#   PYTHON GENERATED GATE CODE FOR THE CONSTRUCTION\n'
                    '#   OF THE DERENZO PHANTOM PUBLISHED IN\n'
@@ -36,7 +42,7 @@ def main():
         mac_file.write('\n# Segment %d\n###########\n' % ii)
         for jj in range(x[ii].size):
             mac_file.write('\n# Rod %d\n' % jj)
-            add_cylinder_gate(mac_file, ii, jj, x[ii][jj], y[ii][jj], z_shift, r[ii][jj], length, activities[ii], colors[ii])
+            add_cylinder_gate(mac_file, ii, jj, x[ii][jj], y[ii][jj], z_shift, r[ii][jj], length, activities[ii], colors[ii], add_non_collinearity)
 
     mac_file.close()
 
@@ -270,13 +276,14 @@ def undo_regroup_into_lines(lst):
     return lst_red
 
 
-def add_cylinder_gate(mac_file, sec_idx, rod_idx, x, y, z, r, h, activity, color):
+def add_cylinder_gate(mac_file, sec_idx, rod_idx, x, y, z, r, h, activity, color, add_non_collinearity):
     source_name = 'rod_%d_%d' % (sec_idx, rod_idx)
     mac_file.write('/gate/source/addSource %s\n' % source_name)
     mac_file.write('/gate/source/%s/setType backtoback\n' % source_name)
 
-    # mac_file.write('/gate/source/%s/setAccolinearityFlag True\n' % source_name)
-    # mac_file.write('/gate/source/%s/setAccoValue 0.5 deg\n' % source_name)
+    if add_non_collinearity:
+        mac_file.write('/gate/source/%s/setAccolinearityFlag True\n' % source_name)
+        mac_file.write('/gate/source/%s/setAccoValue 0.5 deg\n' % source_name)
 
     mac_file.write('/gate/source/%s/gps/type Volume\n' % source_name)
     mac_file.write('/gate/source/%s/gps/shape Cylinder\n' % source_name)

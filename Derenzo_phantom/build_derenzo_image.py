@@ -27,6 +27,7 @@ def main():
 
     # Get the Derenzo parameters
     x_peaks, y_peaks, r_peaks, x_valleys, y_valleys, r_valleys = get_derenzo_parameters(scaling_factor=3., return_valleys=True, visualize=False)
+    radii = np.array([rr[0] for rr in r_peaks])
 
     # Construct the image
     img_peaks = np.zeros((x.size, y.size, len(x_peaks)))
@@ -42,22 +43,18 @@ def main():
     ax.imshow(np.sum(img_peaks, axis=-1).T, origin='lower')
     plt.show()
 
-    dump(x_peaks, open(sys.path[0] + '/Pixelated_ground_truth/x_peaks.pkl', 'wb'))
-    dump(y_peaks, open(sys.path[0] + '/Pixelated_ground_truth/y_peaks.pkl', 'wb'))
-    dump(r_peaks, open(sys.path[0] + '/Pixelated_ground_truth/r_peaks.pkl', 'wb'))
 
-    # dump(x_valleys, open(sys.path[0] + '/Derenzo_pixelated/x_valleys.pkl', 'wb'))
-    # dump(y_valleys, open(sys.path[0] + '/Derenzo_pixelated/y_valleys.pkl', 'wb'))
-    # dump(r_valleys, open(sys.path[0] + '/Derenzo_pixelated/r_valleys.pkl', 'wb'))
-
-    # dump(x_valleys, open(sys.path[0] + '/Pixelated_ground_truth/x_valleys_parzych.pkl', 'wb'))
-    # dump(y_valleys, open(sys.path[0] + '/Pixelated_ground_truth/y_valleys_parzych.pkl', 'wb'))
-    # dump(r_valleys, open(sys.path[0] + '/Pixelated_ground_truth/r_valleys_parzych.pkl', 'wb'))
+    np.save(sys.path[0] + '/Pixelated_ground_truth/x_peaks.npy', np.array(x_peaks, dtype=object), allow_pickle=True)
+    np.save(sys.path[0] + '/Pixelated_ground_truth/y_peaks.npy', np.array(y_peaks, dtype=object), allow_pickle=True)
+    # np.save(sys.path[0] + '/Pixelated_ground_truth/x_valleys.npy', np.array(x_valleys, dtype=object), allow_pickle=True)
+    # np.save(sys.path[0] + '/Pixelated_ground_truth/y_valleys.npy', np.array(y_valleys, dtype=object), allow_pickle=True)
 
     np.save(sys.path[0] + '/Pixelated_ground_truth/x.npy', x)
     np.save(sys.path[0] + '/Pixelated_ground_truth/y.npy', y)
     np.save(sys.path[0] + '/Pixelated_ground_truth/x_grid.npy', x_grid)
     np.save(sys.path[0] + '/Pixelated_ground_truth/y_grid.npy', y_grid)
+    np.save(sys.path[0] + '/Pixelated_ground_truth/radii.npy', radii)
+
     np.save(sys.path[0] + '/Pixelated_ground_truth/img_peaks.npy', img_peaks)
     # np.save(sys.path[0] + '/Pixelated_ground_truth/img_valleys.npy', img_valleys)
     # np.save(sys.path[0] + '/Pixelated_ground_truth/img_valleys_parzych.npy', img_valleys)
