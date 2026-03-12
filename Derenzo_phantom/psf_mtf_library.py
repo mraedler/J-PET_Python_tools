@@ -6,11 +6,11 @@ Author: Martin Rädler
 # Python libraries
 import sys
 import numpy as np
-from scipy.optimize import curve_fit, root_scalar
+from scipy.optimize import root_scalar
 from scipy.special import lambertw
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-from matplotlib.colors import ListedColormap, BoundaryNorm, Normalize
+from matplotlib.colors import Normalize
 
 
 def get_mtf(model='gaussian'):
@@ -178,8 +178,10 @@ def get_plateau_polynomial_xi_one_half_samples():
 
 
 def fwhm_plateau_polynomial_1d(k_one_half, alpha):
-    alpha_samples = np.load(sys.path[0] + '/FWHM/alpha.npy')
-    xi_one_half_samples = np.load(sys.path[0] + '/FWHM/xi_one_half.npy')
+    # alpha_samples = np.load(sys.path[0] + '/FWHM/alpha.npy')
+    # xi_one_half_samples = np.load(sys.path[0] + '/FWHM/xi_one_half.npy')
+    alpha_samples = np.load('/home/martin/PycharmProjects/J-PET_Python_tools/Derenzo_phantom/FWHM/alpha.npy')
+    xi_one_half_samples = np.load('/home/martin/PycharmProjects/J-PET_Python_tools/Derenzo_phantom/FWHM/xi_one_half.npy')
     return 2 * np.interp(alpha, alpha_samples, xi_one_half_samples) / k_one_half
 
 
@@ -207,128 +209,6 @@ def mtf_plateau_gaussian(k, k_one_half, alpha):
     drop_region = (x > -1)
     y[drop_region] = 2 ** (- (1 + x[drop_region]) ** 2)
     return y
-
-
-"""Convenience functions for printing resulting fit parameters"""
-
-
-def finite_differences(function, inputs, delta=0.001):
-
-    derivatives = np.zeros(inputs.size)
-
-    for ii in range(inputs.size):
-        inputs_forward = inputs + np.eye(1, inputs.size, k=ii).flatten() * delta
-        inputs_backward = inputs - np.eye(1, inputs.size, k=ii).flatten() * delta
-
-        derivatives[ii] = (function(*inputs_forward) - function(*inputs_backward)) / (2 * delta)
-
-    return derivatives
-
-
-def error_propagation(function, inputs, inputs_error):
-
-    derivatives = finite_differences(function, inputs)
-    gaussian_error = np.sqrt(np.sum(derivatives ** 2 * inputs_error ** 2))
-
-    return gaussian_error
-
-
-def round_to_exponent(value, exponent):
-    return np.round(value / 10 ** exponent) * 10 ** exponent
-
-
-def print_value_and_error(value, error):
-    exp_error = np.floor(np.log10(np.abs(error)))
-    error_rounded = round_to_exponent(error, exp_error)
-    exp_error_rounded = np.floor(np.log10(np.abs(error_rounded)))
-    error_rounded = round_to_exponent(error_rounded, exp_error_rounded)
-    value_rounded = round_to_exponent(value, exp_error_rounded)
-
-    format_specifier = '%1.5f ± %1.5f  ⇒  %1.' + ('%s' % int(abs(exp_error_rounded))) + 'f(%d)'
-    print(format_specifier % (value, error, value_rounded, int(error_rounded / 10 ** exp_error_rounded)))
-
-    return 0
-
-
-
-
-
-
-
-
-
-
-
-
-
-""""""
-
-
-def alpha_beta_range():
-
-    alpha_edges = np.linspace(-3, 3, 201)
-    beta_edges = np.linspace(-1, 3, 203)
-
-    alpha_centers = (alpha_edges[1:] + alpha_edges[:-1]) / 2
-    beta_centers = (beta_edges[1:] + beta_edges[:-1]) / 2
-
-    print(beta_centers)
-
-    alpha_mesh, beta_mesh = np.meshgrid(alpha_centers.astype(np.complex128), beta_centers.astype(np.complex128), indexing='ij')
-
-    x0 = x_0_zero_crossing(alpha_mesh, beta_mesh)
-    x1 = x_1_zero_crossing(alpha_mesh, beta_mesh)
-    x2 = x_0_zero_crossing2(alpha_mesh, beta_mesh)
-
-
-    x0_not_imaginary = (np.imag(x0) != 0)
-    x1_not_imaginary = (np.imag(x1) != 0)
-    x2_not_imaginary = (np.imag(x2) != 0)
-
-    aa = (x0_not_imaginary) & (x1_not_imaginary) & (x2_not_imaginary)
-
-
-    fig, ax = plt.subplots()
-    ax.imshow(aa.T, origin='lower', extent=(alpha_edges[0], alpha_edges[-1], beta_edges[0], beta_edges[-1]))
-    plt.show()
-
-    return 0
-
-
-def x_0_zero_crossing(alpha_mesh, beta_mesh):
-    x_0 = np.zeros(alpha_mesh.shape, dtype=np.complex128)
-    beta_0 = np.abs(beta_mesh) < 1e-12
-
-    x_0[~beta_0] = np.sqrt(-alpha_mesh[~beta_0] / beta_mesh[~beta_0] + np.sqrt(alpha_mesh[~beta_0] ** 2 - 2 * beta_mesh[~beta_0]) / beta_mesh[~beta_0])
-    x_0[beta_0] = 1j / np.sqrt(alpha_mesh[beta_0])
-
-    return x_0
-
-
-def x_1_zero_crossing(alpha_mesh, beta_mesh):
-    x_1 = np.zeros(alpha_mesh.shape, dtype=np.complex128)
-    beta_0 = np.abs(beta_mesh) < 1e-12
-
-    x_1[~beta_0] = np.sqrt(-alpha_mesh[~beta_0] / beta_mesh[~beta_0] - np.sqrt(alpha_mesh[~beta_0] ** 2 - 2 * beta_mesh[~beta_0]) / beta_mesh[~beta_0])
-    x_1[beta_0] = 1j * np.inf
-
-    return x_1
-
-
-def x_0_zero_crossing2(alpha_mesh, beta_mesh):
-    x_0 = np.zeros(alpha_mesh.shape, dtype=np.complex128)
-    beta_0 = np.abs(beta_mesh) < 1e-12
-
-    x_0[~beta_0] = np.sqrt(1 - alpha_mesh[~beta_0] / beta_mesh[~beta_0] + np.sqrt(alpha_mesh[~beta_0] ** 2 - 2 * beta_mesh[~beta_0] + beta_mesh[~beta_0] ** 2) / beta_mesh[~beta_0])
-    # x_0[beta_0] = 1j / np.sqrt(alpha_mesh[beta_0])
-
-    return x_0
-
-
-
-
-
-
 
 
 """Visualization of one dimensional PSFs/MTFs"""
@@ -409,4 +289,4 @@ if __name__ == '__main__':
     # visualize_hermite_gaussian()
     # visualize_plateau_polynomial()
     # get_plateau_polynomial_xi_one_half_samples()
-    alpha_beta_range()
+    pass

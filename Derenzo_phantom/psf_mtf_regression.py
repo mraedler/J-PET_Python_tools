@@ -10,7 +10,7 @@ import numpy as np
 from scipy.optimize import curve_fit
 
 # Auxiliary functions
-from psf_mtf_library import get_mtf
+from Derenzo_phantom.psf_mtf_library import get_mtf
 
 
 def main():

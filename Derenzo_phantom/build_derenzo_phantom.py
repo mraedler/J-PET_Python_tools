@@ -19,9 +19,10 @@ def main():
     x, y, r, activities = get_derenzo_parameters(scaling_factor=3., visualize=True)
 
     # Additional parameters
-    # z_shift = -815.0  # mm
+    # z_shift = -815.0  # mm (previous version)
     # z_shift = 755.0  # mm (inside the brain insert)
     z_shift = -755.0  # mm (on the opposite side of the brian insert)
+
     length = 50.0  # mm
 
     add_non_collinearity = True
@@ -280,11 +281,9 @@ def add_cylinder_gate(mac_file, sec_idx, rod_idx, x, y, z, r, h, activity, color
     source_name = 'rod_%d_%d' % (sec_idx, rod_idx)
     mac_file.write('/gate/source/addSource %s\n' % source_name)
     mac_file.write('/gate/source/%s/setType backtoback\n' % source_name)
-
     if add_non_collinearity:
         mac_file.write('/gate/source/%s/setAccolinearityFlag True\n' % source_name)
         mac_file.write('/gate/source/%s/setAccoValue 0.5 deg\n' % source_name)
-
     mac_file.write('/gate/source/%s/gps/type Volume\n' % source_name)
     mac_file.write('/gate/source/%s/gps/shape Cylinder\n' % source_name)
     mac_file.write('/gate/source/%s/gps/radius %1.3f mm\n' % (source_name, r))

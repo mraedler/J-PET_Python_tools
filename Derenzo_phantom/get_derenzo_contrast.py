@@ -147,6 +147,9 @@ def derenzo_contrast(img, x_grid, y_grid, x_peaks_itp, y_peaks_itp, radii, dista
         contrast_values.append(np.mean(normalized_contrast, axis=1))
         contrast_errors.append(np.std(normalized_contrast, axis=1))
 
+        # print(contrast_values[-1][0])
+        # plt.show()
+
     # Concatenate list to numpy array
     wave_numbers = np.concatenate(wave_numbers).flatten()
     contrast_values = np.concatenate(contrast_values)
@@ -244,7 +247,7 @@ def fourier_series(x, y, highest_order, ax=False):
         ax.set_ylabel('Image intensity')
         lines[0].set_label('Profiles')
         ax.legend(loc='lower center', frameon=False)
-        plt.show()
+        # plt.show()
 
     k_enn = 2 * np.pi * enn / ell
 

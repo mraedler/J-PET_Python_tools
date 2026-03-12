@@ -54,7 +54,7 @@ def load_derenzo_image(reconstruction_dir, it=False, z_offset=-755):
 
     aa = natsorted(glob(castor_output_dir + reconstruction_dir + '/img_it*.hdr'))
     iterations_available = np.array([int(Path(entry).stem[6:]) for entry in aa])
-    print(iterations_available)
+    # print(iterations_available)
     iterations = iterations_available
 
     x, y, z, img_1 = read_interfile(castor_output_dir + reconstruction_dir + '/img_it1.hdr', return_grid=True)
@@ -65,6 +65,8 @@ def load_derenzo_image(reconstruction_dir, it=False, z_offset=-755):
         if idx.size == 1:
             img = read_interfile(castor_output_dir + reconstruction_dir + '/img_it%d.hdr' % iterations[idx])
             return img[:, :, z_selection]
+            # return z[z_selection], img[:, :, z_selection]
+            # return z, img[:, :, :]
         else:
             sys.exit("Iteration number %d not available." % it)
 
