@@ -14,13 +14,13 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
 
 # Auxiliary functions
-from read_interfile import read_interfile
-from utilities import get_extent
+from CASToR.read_interfile import read_interfile
+from CASToR.utilities import get_extent
 sys.path.append('../')
 from sensitivity_coincidences import get_sensitivity, plot_sensitivity
 from layer_utilization import equate_layer_utilization
 from data_structures import load_or_convert_to_structured_array
-from vis import vis_3d
+from CASToR.vis import vis_3d
 
 
 def main():

@@ -10,10 +10,9 @@ from matplotlib import pyplot as plt
 from matplotlib.ticker import LogLocator, LinearLocator
 
 # Auxiliary functions
-from read_interfile import read_interfile
+from CASToR.read_interfile import read_interfile
 from FWHM_fits import profile_fits
-# from analyze_recon import profile_fit_comparison
-from vis import vis_3d
+from CASTR.vis import vis_3d
 
 
 def main():
