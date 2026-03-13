@@ -7,7 +7,7 @@ Author: Martin Rädler
 import sys
 import numpy as np
 from scipy.optimize import root_scalar
-from scipy.special import lambertw
+from scipy.special import lambertw, jv, struve
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.colors import Normalize
@@ -93,8 +93,9 @@ def psf_hermite_gaussian_1d(x, sigma, alpha):
 
 
 def psf_hermite_gaussian_2d(x, y, sigma, alpha):
-
-    return 0
+    argument = (x ** 2 + y ** 2) / (2 * sigma ** 2)
+    gaussian = 1 / (2 * np.pi * sigma ** 2) * np.exp(-argument)
+    return gaussian * (1 - alpha * (argument - 1 / 1))
 
 
 def fwhm_hermite_gaussian_1d(sigma, alpha):
@@ -147,8 +148,36 @@ def psf_plateau_polynomial_1d(x, k_one_half, alpha):
 
 
 def psf_plateau_polynomial_2d(x, y, k_one_half, alpha):
+    rho = np.sqrt(x ** 2 + y ** 2)
+    psf = np.zeros_like(rho)
 
-    return 0
+    rho_is_zero = rho == 0.
+    psf[rho_is_zero] = k_one_half ** 2 * (1 + alpha ** 2 / 5) / (4 * np.pi)
+    rho = rho[~rho_is_zero]
+
+    if alpha == 0.:
+        psf[~rho_is_zero] = 1 / (2 * np.pi) * k_one_half * jv(1, k_one_half * rho) / rho
+    else:
+        a = (1 - alpha) * k_one_half
+        b = (1 + alpha) * k_one_half
+        psf_2d_one = (1 - alpha ** 2) * (bessel_integral_f(b * rho) - bessel_integral_f(a * rho))
+        psf_2d_two = 3 / (k_one_half ** 2 * rho ** 2) * (bessel_integral_g(b * rho) - bessel_integral_g(a * rho))
+        psf[~rho_is_zero] = 1 / (2 * np.pi) * 3 / 4 * 1 / (alpha ** 3 * rho ** 2) * 1 / (k_one_half * rho) * (psf_2d_one - psf_2d_two)
+
+    return psf
+
+
+def bessel_integral_f(x):
+    return bessel_integral_h(x) + x * jv(2, x)
+
+
+def bessel_integral_g(x):
+    # return np.pi * x * (jv(1, x) * struve(2, x) - jv(2, x) * struve(1, x)) / 2
+    return bessel_integral_h(x) + x ** 2 * jv(1, x) / 3
+
+
+def bessel_integral_h(x):
+    return np.pi * x * (jv(0, x) * struve(1, x) - jv(1, x) * struve(0, x)) / 2
 
 
 def get_plateau_polynomial_xi_one_half_samples():
