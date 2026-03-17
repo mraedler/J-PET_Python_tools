@@ -59,7 +59,7 @@ def main():
     img_derenzo = np.sum(img_peaks, axis=-1)
 
     # #
-    # pickle_file = open('/home/martin/PycharmProjects/J-PET/Triangles_pixelated/mtf_correction.pkl', 'rb')
+    # pickle_file = open(sys.path[0] + '/Triangles_pixelated/mtf_correction.pkl', 'rb')
     # spline = load(pickle_file)
     # pickle_file.close()
 
@@ -167,10 +167,10 @@ def get_derenzo_mtf(img, img_peaks, img_valleys, radii):
 
 def main2():
     #
-    x_grid = np.load('/home/martin/PycharmProjects/J-PET/Triangles_pixelated/x_grid.npy')
-    y_grid = np.load('/home/martin/PycharmProjects/J-PET/Triangles_pixelated/y_grid.npy')
-    x = np.load('/home/martin/PycharmProjects/J-PET/Triangles_pixelated/x.npy')
-    y = np.load('/home/martin/PycharmProjects/J-PET/Triangles_pixelated/y.npy')
+    x_grid = np.load(sys.path[0] + '/Triangles_pixelated/x_grid.npy')
+    y_grid = np.load(sys.path[0] + '/Triangles_pixelated/y_grid.npy')
+    x = np.load(sys.path[0] + '/Triangles_pixelated/x.npy')
+    y = np.load(sys.path[0] + '/Triangles_pixelated/y.npy')
 
     #
     distances = np.array([10.0, 8.0, 6.0, 5.0, 4.0, 3.2])  # mm
@@ -198,9 +198,9 @@ def main2():
         bb_temp = np.zeros(distances.shape)
 
         for ii in range(distances.size):
-            img_peaks_original = np.load('/home/martin/PycharmProjects/J-PET/Triangles_pixelated/img_peaks_%1.1fmm_%drows.npy' % (distances[ii], n_rows_original[ii]))
-            img_peaks_padded = np.load('/home/martin/PycharmProjects/J-PET/Triangles_pixelated/img_peaks_%1.1fmm_%drows.npy' % (distances[ii], n_rows_padded[ii]))
-            img_valleys_original = np.load('/home/martin/PycharmProjects/J-PET/Triangles_pixelated/img_valleys_%1.1fmm_%drows.npy' % (distances[ii], n_rows_original[ii]))
+            img_peaks_original = np.load(sys.path[0] + '/Triangles_pixelated/img_peaks_%1.1fmm_%drows.npy' % (distances[ii], n_rows_original[ii]))
+            img_peaks_padded = np.load(sys.path[0] + '/Triangles_pixelated/img_peaks_%1.1fmm_%drows.npy' % (distances[ii], n_rows_padded[ii]))
+            img_valleys_original = np.load(sys.path[0] + '/Triangles_pixelated/img_valleys_%1.1fmm_%drows.npy' % (distances[ii], n_rows_original[ii]))
 
             img_conv_original = convolve2d(img_peaks_original, psf, mode='same')
             img_conv_padded = convolve2d(img_peaks_padded, psf, mode='same')
@@ -252,14 +252,14 @@ def main2():
                             np.ones(k + 1) * contrast_original_extended[-1]))
 
     # spline = make_lsq_spline(contrast_original_extended, correction_extended, knots, k=k)
-    # pickle_file = open('/home/martin/PycharmProjects/J-PET/Triangles_pixelated/mtf_correction.pkl', 'wb')
+    # pickle_file = open(sys.path[0] + '/Triangles_pixelated/mtf_correction.pkl', 'wb')
     # dump(spline, pickle_file)
     # pickle_file.close()
 
     p_opt, p_cov = curve_fit(lambda var, x0: fit_function(var, x0, a), contrast_original, correction, p0=(-2 * a))
     print(p_opt)
 
-    # pickle_file = open('/home/martin/PycharmProjects/J-PET/Triangles_pixelated/mtf_correction_median.pkl', 'wb')
+    # pickle_file = open(sys.path[0] + '/Triangles_pixelated/mtf_correction_median.pkl', 'wb')
     # dump(fitted_function, pickle_file)
     # pickle_file.close()
 

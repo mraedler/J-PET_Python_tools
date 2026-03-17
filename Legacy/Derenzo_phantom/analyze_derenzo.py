@@ -95,7 +95,7 @@ def main():
         # def process_item(item):
         #     return run_optimization(x_grid, y_grid, img_recon_acc[:, :, item], img_derenzo, 'gaussian', visualize=False, return_only_fwhm=True)
         # fwhm_it = np.array(Parallel(n_jobs=16)(delayed(process_item)(item) for item in trange(img_recon_acc.shape[-1])))
-        # np.save(sys.path[0] + '/params/FWHM_gaussian.npy', fwhm_it)
+        # np.save(sys.path[0] + '/Parameter_progression/FWHM_gaussian.npy', fwhm_it)
         # show_convergence_iterations()
 
         # _, _, _, psf_lorentzian = run_optimization(x_grid, y_grid, img_recon_acc[:, :, 500], img_derenzo, 'lorentzian')
@@ -144,7 +144,7 @@ def main():
 
 def show_convergence_iterations():
 
-    fwhm_it = np.load(sys.path[0] + '/params/FWHM_gaussian.npy')
+    fwhm_it = np.load(sys.path[0] + '/Parameter_progression/FWHM_gaussian.npy')
     it = np.arange(1, fwhm_it.size + 1)
 
     plateau = np.polyfit(it[it > 500], fwhm_it[it > 500], 0)[0][0]
