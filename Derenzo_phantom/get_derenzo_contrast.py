@@ -69,9 +69,9 @@ def get_derenzo_contrast_function(x_grid, y_grid, x_peaks, y_peaks, radii, highe
     correction_wave_numbers = np.load(path + '/Pixelated_ground_truth/correction_wave_numbers.npy')
     correction_factors = np.load(path + '/Pixelated_ground_truth/correction_factors.npy')
 
-    def derenzo_contrast_function_2d(img_2d):
+    def derenzo_contrast_function_2d(img_2d, return_profiles=False):
         # show_interpolation_lines(x_grid, y_grid, img_2d, x_peaks_itp, y_peaks_itp)
-        return derenzo_contrast(img_2d, x_grid, y_grid, x_peaks_itp, y_peaks_itp, radii, h_0.flatten(), correction_wave_numbers, correction_factors, apply_correction=apply_correction, highest_order=highest_order)
+        return derenzo_contrast(img_2d, x_grid, y_grid, x_peaks_itp, y_peaks_itp, radii, h_0.flatten(), correction_wave_numbers, correction_factors, apply_correction=apply_correction, highest_order=highest_order, return_profiles=return_profiles)
 
     def derenzo_contrast_function_3d(img_3d):
 
@@ -98,7 +98,7 @@ def get_derenzo_contrast_function(x_grid, y_grid, x_peaks, y_peaks, radii, highe
     return derenzo_contrast_function_2d, derenzo_contrast_function_3d
 
 
-def derenzo_contrast(img, x_grid, y_grid, x_peaks_itp, y_peaks_itp, radii, distance, correction_wave_numbers, correction_factors, apply_correction=False, highest_order=20):
+def derenzo_contrast(img, x_grid, y_grid, x_peaks_itp, y_peaks_itp, radii, distance, correction_wave_numbers, correction_factors, apply_correction=False, highest_order=20, return_profiles=False):
     # Linear interpolator
     x, y = (x_grid[1:] + x_grid[:-1]) / 2, (y_grid[1:] + y_grid[:-1]) / 2
     interpolator = RegularGridInterpolator((x, y), img)
@@ -113,6 +113,9 @@ def derenzo_contrast(img, x_grid, y_grid, x_peaks_itp, y_peaks_itp, radii, dista
     contrast_values = []
     contrast_errors = []
 
+    distances = []
+    profiles = []
+
     for ii in range(radii.size):
         # Get the line profiles by interpolation
         peaks = interpolator((x_peaks_itp[ii], y_peaks_itp[ii]))
@@ -121,6 +124,9 @@ def derenzo_contrast(img, x_grid, y_grid, x_peaks_itp, y_peaks_itp, radii, dista
 
         # Fourier series
         k_n, cosine_coefficients, sine_coefficients = fourier_series(radii[ii] * distance, peaks, highest_order, ax=ax1)
+
+        distances.append(radii[ii] * distance)
+        profiles.append(peaks)
 
         # Measure of how asynchronous it is
         # print(np.mean(np.abs(sine_coefficients / (cosine_coefficients[0:1, :] * 2))[1, :]))
@@ -149,6 +155,9 @@ def derenzo_contrast(img, x_grid, y_grid, x_peaks_itp, y_peaks_itp, radii, dista
 
         # print(contrast_values[-1][0])
         # plt.show()
+
+    if return_profiles:
+        return distances, profiles, x_peaks_itp, y_peaks_itp
 
     # Concatenate list to numpy array
     wave_numbers = np.concatenate(wave_numbers).flatten()
@@ -247,7 +256,7 @@ def fourier_series(x, y, highest_order, ax=False):
         ax.set_ylabel('Image intensity')
         lines[0].set_label('Profiles')
         ax.legend(loc='lower center', frameon=False)
-        # plt.show()
+        plt.show()
 
     k_enn = 2 * np.pi * enn / ell
 

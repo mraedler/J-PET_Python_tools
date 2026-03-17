@@ -6,6 +6,7 @@ Author: Martin Rädler
 # Python libraries
 import sys
 import numpy as np
+from os.path import dirname
 from scipy.optimize import root_scalar
 from scipy.special import lambertw, jv, struve
 import matplotlib.pyplot as plt
@@ -200,17 +201,15 @@ def get_plateau_polynomial_xi_one_half_samples():
     ax.set_ylabel(r'$\xi_{1/2}$')
     plt.show()
 
-    # np.save(sys.path[0] + '/FWHM/alpha.npy', alpha)
-    # np.save(sys.path[0] + '/FWHM/xi_one_half.npy', xi_one_half)
+    # np.save(dirname(__file__) + '/FWHM_plateau_polynomial/alpha_samples.npy', alpha)
+    # np.save(dirname(__file__) + '/FWHM_plateau_polynomial/xi_one_half.npy', xi_one_half)
 
     return 0
 
 
 def fwhm_plateau_polynomial_1d(k_one_half, alpha):
-    # alpha_samples = np.load(sys.path[0] + '/FWHM/alpha.npy')
-    # xi_one_half_samples = np.load(sys.path[0] + '/FWHM/xi_one_half.npy')
-    alpha_samples = np.load('/home/martin/PycharmProjects/J-PET_Python_tools/Derenzo_phantom/FWHM/alpha.npy')
-    xi_one_half_samples = np.load('/home/martin/PycharmProjects/J-PET_Python_tools/Derenzo_phantom/FWHM/xi_one_half.npy')
+    alpha_samples = np.load(dirname(__file__) + '/FWHM_plateau_polynomial/alpha_samples.npy')
+    xi_one_half_samples = np.load(dirname(__file__) + '/FWHM_plateau_polynomial/xi_one_half.npy')
     return 2 * np.interp(alpha, alpha_samples, xi_one_half_samples) / k_one_half
 
 
@@ -317,5 +316,5 @@ def visualize_plateau_polynomial():
 if __name__ == '__main__':
     # visualize_hermite_gaussian()
     # visualize_plateau_polynomial()
-    # get_plateau_polynomial_xi_one_half_samples()
+    get_plateau_polynomial_xi_one_half_samples()
     pass
