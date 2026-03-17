@@ -158,10 +158,10 @@ def psf_plateau_polynomial_2d(x, y, k_one_half, alpha):
     if alpha == 0.:
         psf[~rho_is_zero] = 1 / (2 * np.pi) * k_one_half * jv(1, k_one_half * rho) / rho
     else:
-        a = (1 - alpha) * k_one_half
-        b = (1 + alpha) * k_one_half
-        psf_2d_one = (1 - alpha ** 2) * (bessel_integral_f(b * rho) - bessel_integral_f(a * rho))
-        psf_2d_two = 3 / (k_one_half ** 2 * rho ** 2) * (bessel_integral_g(b * rho) - bessel_integral_g(a * rho))
+        km = (1 - alpha) * k_one_half
+        kp = (1 + alpha) * k_one_half
+        psf_2d_one = (1 - alpha ** 2) * (bessel_integral_f(kp * rho) - bessel_integral_f(km * rho))
+        psf_2d_two = 3 / (k_one_half ** 2 * rho ** 2) * (bessel_integral_g(kp * rho) - bessel_integral_g(km * rho))
         psf[~rho_is_zero] = 1 / (2 * np.pi) * 3 / 4 * 1 / (alpha ** 3 * rho ** 2) * 1 / (k_one_half * rho) * (psf_2d_one - psf_2d_two)
 
     return psf

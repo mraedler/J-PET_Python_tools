@@ -1,5 +1,5 @@
 """
-Plot the convergence of the derenzo contrast analysis
+Plot the convergence of the Modulation Transfer function (MTF) regression
 
 Author: Martin Rädler
 """
@@ -16,8 +16,9 @@ from CASToR.read_interfile import read_interfile
 from CASToR.vis import vis_3d
 from get_derenzo_image import get_ground_truth_derenzo_image, load_derenzo_image
 from get_derenzo_contrast import get_derenzo_contrast_function
-from psf_mtf_library import fwhm_hermite_gaussian_1d, fwhm_plateau_polynomial_1d, print_value_and_error, error_propagation
-from psf_mtf_regression import fit_mtf
+from Derenzo_phantom.psf_mtf_library import fwhm_hermite_gaussian_1d, fwhm_plateau_polynomial_1d
+from Derenzo_phantom.psf_mtf_regression import fit_mtf
+from Derenzo_phantom.print_significant_digits import print_value_and_error, error_propagation
 from axial_correlation import axial_correlation
 
 
@@ -54,7 +55,6 @@ def model_comparison():
             # sum_squared_residuals[ii, jj] = np.sum(((fitted_function(wave_numbers) - contrast_values) / contrast_errors) ** 2)
             # sum_squared_residuals[ii, jj] = np.sum(((fitted_function(wave_numbers) - contrast_values) / mean_error[ii]) ** 2)
             sum_squared_residuals[ii, jj] = np.sum((fitted_function(wave_numbers) - contrast_values) ** 2) / mean_error[ii] ** 2
-
 
     plt.rcParams.update({'font.size': 16})
     fig, ax = plt.subplots(figsize=(8.7, 5))
@@ -115,7 +115,8 @@ def contrast_convergence(include_amplitude=False):
 
         fitted_function, p_opts[ii, :], p_errs[ii, :] = fit_mtf(wave_numbers, contrast_values, contrast_errors, model=model, include_amplitude=include_amplitude)
         ax.plot(frequency_samples, fitted_function(frequency_samples), color=cmap(norm(iterations[ii])))
-        # print(iterations[ii])
+        print(iterations[ii])
+        print(p_opts[ii, :])
         # print_value_and_error(fwhm_hermite_gaussian_1d(*p_opts[ii, :]), error_propagation(fwhm_hermite_gaussian_1d, p_opts[ii, :], p_errs[ii, :]))
         # print_value_and_error(fwhm_plateau_polynomial_1d(*p_opts[ii, :]), error_propagation(fwhm_plateau_polynomial_1d, p_opts[ii, :], p_errs[ii, :]))
 

@@ -11,6 +11,7 @@ from matplotlib import pyplot as plt
 from scipy.signal import convolve2d, fftconvolve
 from scipy.optimize import curve_fit, minimize
 from scipy.integrate import cumulative_trapezoid
+from skimage.metrics import normalized_root_mse, normalized_mutual_information
 from tqdm import trange
 
 # Auxiliary functions
@@ -59,25 +60,37 @@ def fit_mtf(wave_numbers, contrast_values, contrast_errors, model='hermite-gauss
     return lambda k: fit_function(k, *p_opt), p_opt, p_err
 
 
-def fit_psf_2d(x_grid_psf, y_grid_psf, img_recon, img_derenzo, model='hermite-gaussian', show_convergence=False):
+def fit_psf_2d(x_grid_psf, y_grid_psf, img_recon, img_derenzo, model='hermite-gaussian', amplitude=False, show_convergence=False):
     """
     :param x_grid_psf: The mid-points between the grid values have to go through the center x=0 for a symmetric kernel
     :param y_grid_psf: The mid-points between the grid values have to go through the center y=0 for a symmetric kernel
     """
     # evaluation_vs_integration(x_grid_psf, y_grid_psf, model)
 
-    p_0 = np.array([1, 0.5])
-    p_s = np.array([1, 0.1])
-
     # Keep track of the cost function values
     parameters_values_dict = {}
     evaluation_counter = 0
 
     def objective_function(params):
-        # todo: punish alpha outside
+        # Assign large objective function values if the parameters are outside of their validity range
+        if params[0] <= 0:
+            return np.inf
+
+        if (params[1] < 0) | (params[1] > 1):
+            return np.inf
+
         nonlocal evaluation_counter
-        # Root mean square error
-        value = np.sqrt(np.mean((img_recon - params[0] * blur_ground_truth(x_grid_psf, y_grid_psf, img_derenzo, model, params[1:], n=150)) ** 2))
+
+        if not amplitude:
+            blurred_ground_truth = blur_ground_truth(x_grid_psf, y_grid_psf, img_derenzo, model, params[:-1], n_cut=150)
+            scaled_blurred_ground_truth = params[-1] * blurred_ground_truth
+        else:
+            blurred_ground_truth = blur_ground_truth(x_grid_psf, y_grid_psf, img_derenzo, model, params, n_cut=150)
+            scaled_blurred_ground_truth = amplitude * blurred_ground_truth
+
+        value = np.sqrt(np.mean((img_recon - scaled_blurred_ground_truth) ** 2))
+        # value = normalized_root_mse(img_recon, scaled_blurred_ground_truth, normalization='mean')
+        # value = normalized_mutual_information(img_recon, scaled_blurred_ground_truth)
 
         # Keep track of the pairs of parameters and their objective function values
         parameters_values_dict[tuple(params)] = value
@@ -87,14 +100,22 @@ def fit_psf_2d(x_grid_psf, y_grid_psf, img_recon, img_derenzo, model='hermite-ga
         return value
 
     # Initial guess
-    amplitude_0 = np.sum(img_recon) / np.sum(img_derenzo)
-    x_0 = np.insert(p_0, 0, amplitude_0)
-    x_s = np.insert(p_s, 0, amplitude_0)
-    initial_simplex = np.tile(x_0, (x_0.size + 1, 1))
-    initial_simplex[1:, :] += np.diag(x_s)
+    p_0 = np.array([1, 0.5])
+    p_s = np.array([1, 0.1])
+
+    if not amplitude:
+        # Initial guess of the amplitude
+        amplitude_0 = np.sum(img_recon) / np.sum(img_derenzo)
+        # amplitude_0 = np.sum(img_derenzo * img_recon) / np.sum(img_derenzo ** 2)
+
+        p_0 = np.append(p_0, amplitude_0)
+        p_s = np.append(p_s, amplitude_0 / 100)
+
+    initial_simplex = np.tile(p_0, (p_0.size + 1, 1))
+    initial_simplex[1:, :] += np.diag(p_s)
 
     # Run the optimization
-    p_opt = minimize(objective_function, method='Nelder-Mead', x0=x_0, options={'initial_simplex': initial_simplex, 'return_all': True, 'maxfev': 10000})
+    p_opt = minimize(objective_function, method='Nelder-Mead', x0=p_0, options={'initial_simplex': initial_simplex, 'return_all': True, 'maxfev': 10000})
     print()
     # todo: Add parameter progression
 
@@ -138,17 +159,21 @@ def evaluation_vs_integration(x_grid_psf, y_grid_psf, model):
     return 0
 
 
-def blur_ground_truth(x_grid_psf, y_grid_psf, img_ground_truth, model, params, n=0):
+def blur_ground_truth(x_grid_psf, y_grid_psf, img_ground_truth, model, params, n_cut=0):
     if model == 'hermite-gaussian':
-        point_spread_function, _, _ = numerical_kernel_integral(x_grid_psf[n:-n or None], y_grid_psf[n:-n or None], pdf_function=lambda xx, yy: psf_hermite_gaussian_2d(xx, yy, *params))
+        pdf_function = lambda xx, yy: psf_hermite_gaussian_2d(xx, yy, *params)
     elif model == 'plateau-polynomial':
-        point_spread_function, _, _ = numerical_kernel_integral(x_grid_psf[n:-n or None], y_grid_psf[n:-n or None], pdf_function=lambda xx, yy: psf_plateau_polynomial_2d(xx, yy, *params))
+        pdf_function = lambda xx, yy: psf_plateau_polynomial_2d(xx, yy, *params)
     else:
         sys.exit('Unrecognized model: %s' % model)
 
+    point_spread_function, _, _ = numerical_kernel_integral(x_grid_psf[n_cut:-n_cut or None],
+                                                            y_grid_psf[n_cut:-n_cut or None],
+                                                            pdf_function=pdf_function)
+
     # point_spread_function[point_spread_function < 0] = 0
     # point_spread_function /= point_spread_function.sum()
-    print(point_spread_function.sum())
+    # print(point_spread_function.sum())
 
     # return convolve2d(img_ground_truth, point_spread_function, mode='same')
     return fftconvolve(img_ground_truth, point_spread_function, mode='same')
