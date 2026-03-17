@@ -11,12 +11,19 @@ from natsort import natsorted
 import numpy as np
 from re import split
 
+# Auxiliary functions
+from CASToR.vis import vis_3d
+
 
 def main():
     # Example input
-    hdr_path = '/home/martin/J-PET/CASToR_scripts/recon/sensitivity_maps/TB_only_sensitivity.hdr'
+    # hdr_path = '/home/martin/J-PET/CASToR_scripts/recon/sensitivity_maps/TB_only_sensitivity.hdr'
+    hdr_path = '/home/martin/J-PET/CASToR_RECONS/SENS_MAPS/CONST_MINIMAL_CASToR_ITP.hdr'
     vol = read_interfile(hdr_path)
-    print(vol.shape)
+
+    vis_3d(vol)
+
+    print(np.unique(vol))
     return 0
 
 

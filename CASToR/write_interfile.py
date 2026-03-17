@@ -6,18 +6,21 @@ Author: Martin Rädler
 # Python libraries
 import sys
 import numpy as np
-from scipy.interpolate import RegularGridInterpolator
-
-# Auxiliary functions
-from read_interfile import read_interfile
-# from vis import vis_3d
 
 
 def main():
-    input_dir = '/home/martin/PycharmProjects/J-PET/Sensitivity_maps/SiPM_6mm_depth_3cm'
-    sensitivity_map = np.load(input_dir + '/accumulated.npy')
-    x, y, z = np.load(input_dir + '/x.npy'), np.load(input_dir + '/y.npy'), np.load(input_dir + '/z.npy')
-    # vis_3d(sensitivity_map, spacing=[10, 10, 20], transpose=True, axis=0)
+    output_path = '/home/martin/J-PET/CASToR_RECONS/SENS_MAPS/'
+    name = 'CONST_MINIMAL'
+    scanner = 'TB_J-PET_7th_gen_brain_insert_WHR_4_18_1_mm'
+    # scanner = 'TB_J-PET_7th_gen_brain_insert_WHR_6_30_1_mm'
+
+    volumetric_data = np.ones([2, 2, 2], dtype=np.float32)
+    dims = np.array(volumetric_data.shape)
+    voxel_sizes = np.array([10000., 10000., 10000.])
+    offset = np.array([0., 0., 0.])
+
+    write_interfile_header(output_path, name, scanner, dims, voxel_sizes, offset)
+    write_interfile_binary(volumetric_data, output_path, name)
 
     return 0
 
