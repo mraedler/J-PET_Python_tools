@@ -11,7 +11,8 @@ from matplotlib import pyplot as plt
 # Auxiliary functions
 from Derenzo_phantom.get_derenzo_contrast import get_derenzo_contrast_function
 from Derenzo_phantom.get_derenzo_image import get_ground_truth_derenzo_image, load_derenzo_image
-from Derenzo_phantom.psf_mtf_library import fwhm_hermite_gaussian_1d, fwhm_plateau_polynomial_1d
+from Derenzo_phantom.psf_mtf_library import (fwhm_hermite_gaussian_definition, fwhm_hermite_gaussian_percentile, fwhm_hermite_gaussian_frequency,
+                                             fwhm_plateau_polynomial_definition, fwhm_plateau_polynomial_percentile, fwhm_plateau_polynomial_frequency)
 from Derenzo_phantom.psf_mtf_regression import fit_mtf
 from Derenzo_phantom.print_significant_digits import print_value_and_error, error_propagation
 
@@ -48,16 +49,25 @@ def main():
     colors = colors[:4] + colors[1:2]
     line_styles = ['-'] * 4 + ['--']
 
+    # dim = 1
+    dim = 2
+
     for ii in range(len(images)):
         wave_numbers, contrast_values, contrast_errors = derenzo_contrast_2d(np.mean(images[ii], axis=-1))
         # wave_numbers, contrast_values, contrast_errors = derenzo_contrast_3d(images[ii])
         ax.errorbar(wave_numbers, contrast_values, yerr=contrast_errors, fmt='.', capsize=3, color=colors[ii], alpha=0.25)
         # ax.errorbar(wave_numbers, contrast_values, yerr=contrast_errors, fmt='.', capsize=3, color=colors[ii], alpha=0.0625)
 
-        # fitted_function, p_opt, p_err = fit_mtf(wave_numbers, contrast_values, contrast_errors, model='hermite-gaussian')
-        # print_value_and_error(fwhm_hermite_gaussian_1d(*p_opt), error_propagation(fwhm_hermite_gaussian_1d, p_opt, p_err))
-        fitted_function, p_opt, p_err = fit_mtf(wave_numbers, contrast_values, contrast_errors, model='plateau-polynomial')
-        print_value_and_error(fwhm_plateau_polynomial_1d(*p_opt), error_propagation(fwhm_plateau_polynomial_1d, p_opt, p_err))
+        fitted_function, p_opt, p_err = fit_mtf(wave_numbers, contrast_values, contrast_errors, model='hermite-gaussian')
+        # print_value_and_error(fwhm_hermite_gaussian(*p_opt, dim=dim), error_propagation(lambda sigma, alpha: fwhm_hermite_gaussian(sigma, alpha, dim=dim), p_opt, p_err))
+        print_value_and_error(fwhm_hermite_gaussian_percentile(*p_opt, dim=dim), error_propagation(lambda sigma, alpha: fwhm_hermite_gaussian_percentile(sigma, alpha, dim=dim), p_opt, p_err))
+        # print_value_and_error(fwhm_hermite_gaussian_mtf_50(*p_opt), error_propagation(fwhm_hermite_gaussian_mtf_50, p_opt, p_err))
+
+        # fitted_function, p_opt, p_err = fit_mtf(wave_numbers, contrast_values, contrast_errors, model='plateau-polynomial')
+        # print_value_and_error(fwhm_plateau_polynomial_definition(*p_opt), error_propagation(lambda k_one_half, alpha: fwhm_plateau_polynomial_definition(k_one_half, alpha, dim=dim), p_opt, p_err))
+        # print_value_and_error(fwhm_plateau_polynomial_percentile(*p_opt, dim=dim), error_propagation(lambda k_one_half, alpha: fwhm_plateau_polynomial_percentile(k_one_half, alpha, dim=dim), p_opt, p_err))
+        # print_value_and_error(fwhm_plateau_polynomial_frequency(*p_opt), error_propagation(fwhm_plateau_polynomial_frequency, p_opt, p_err))
+        # print(p_opt)
 
         ax.plot(wave_number_samples, fitted_function(wave_number_samples), color=colors[ii], linestyle=line_styles[ii])
         # ax.plot(wave_number_samples, fitted_function(wave_number_samples), color=colors[ii], linestyle=line_styles[ii], alpha=0.25)

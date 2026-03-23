@@ -15,7 +15,7 @@ from skimage.metrics import normalized_root_mse, normalized_mutual_information
 from tqdm import trange
 
 # Auxiliary functions
-from Derenzo_phantom.psf_mtf_library import get_mtf, psf_hermite_gaussian_2d, psf_plateau_polynomial_2d, fwhm_hermite_gaussian_1d, fwhm_plateau_polynomial_1d
+from Derenzo_phantom.psf_mtf_library import get_mtf, psf_hermite_gaussian_2d, psf_plateau_polynomial_2d
 
 
 def main():

@@ -228,6 +228,9 @@ def compare_four_derenzo_images_and_profiles_v2(x_grid, y_grid, images_list, rad
         axes[jj][kk].text(0, -63, r'$i=3$', color='white', va='center', ha='center', fontsize=10)
         axes[jj][kk].text(0, 61, r'$i=6$', color='white', va='center', ha='center', fontsize=10)
 
+        print(titles[ii], estimate_fwhm(distances[5], np.mean(profiles[5], axis=-1)))
+        # print(titles[ii], estimate_fwhm(distances[2], np.mean(profiles[2], axis=-1)))
+
         axes[0][-1].plot(distances[5], np.mean(profiles[5], axis=-1), color=colors[ii])
         axes[1][-1].plot(distances[2], np.mean(profiles[2], axis=-1), color=colors[ii])
 
@@ -256,6 +259,32 @@ def compare_four_derenzo_images_and_profiles_v2(x_grid, y_grid, images_list, rad
     plt.show()
 
     return 0
+
+
+def estimate_fwhm(x, y, show_plot=False):
+    y_mid = (np.max(y) + np.min(y)) / 2
+    # y_mid = 100
+    indices = np.where((y[:-1] - y_mid) * (y[1:] - y_mid) < 0)[0]
+
+    if indices.size != 2:
+        sys.exit('Error: number of intersections is not equal to 2.')
+
+    x_0 = get_intersection(x[indices[0]], x[indices[0] + 1], y[indices[0]], y[indices[0] + 1], y_mid)
+    x_1 = get_intersection(x[indices[1]], x[indices[1] + 1], y[indices[1]], y[indices[1] + 1], y_mid)
+
+    if show_plot:
+        fig, ax = plt.subplots()
+        ax.plot(x, y)
+        ax.plot([x[0], x[-1]], [y_mid, y_mid])
+        ax.plot(x_0, y_mid, 'x')
+        ax.plot(x_1, y_mid, 'x')
+        plt.show()
+
+    return x_1 - x_0
+
+
+def get_intersection(x_0, x_1, y_0, y_1, y_h):
+    return x_0 + (x_1 - x_0) * (y_h - y_0) / (y_1 - y_0)
 
 
 if __name__ == "__main__":
