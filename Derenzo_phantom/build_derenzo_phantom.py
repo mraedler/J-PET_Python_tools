@@ -43,7 +43,8 @@ def main():
         mac_file.write('\n# Segment %d\n###########\n' % ii)
         for jj in range(x[ii].size):
             mac_file.write('\n# Rod %d\n' % jj)
-            add_cylinder_gate(mac_file, ii, jj, x[ii][jj], y[ii][jj], z_shift, r[ii][jj], length, activities[ii], colors[ii], add_non_collinearity)
+            # add_cylinder_gate(mac_file, ii, jj, x[ii][jj], y[ii][jj], z_shift, r[ii][jj], length, activities[ii], colors[ii], add_non_collinearity)
+            add_cylinder_gate_v2(mac_file, ii, jj, x[ii][jj], y[ii][jj], z_shift, r[ii][jj], length, activities[ii], colors[ii], add_non_collinearity)
 
     mac_file.close()
 
@@ -293,6 +294,27 @@ def add_cylinder_gate(mac_file, sec_idx, rod_idx, x, y, z, r, h, activity, color
     mac_file.write('/gate/source/%s/gps/energytype Mono\n' % source_name)
     mac_file.write('/gate/source/%s/gps/monoenergy 511 keV\n' % source_name)
     mac_file.write('/gate/source/%s/gps/angtype iso\n' % source_name)
+    mac_file.write('/gate/source/%s/setActivity %1.3f Bq\n' % (source_name, activity))
+    mac_file.write('/gate/source/%s/visualize 100 %s 5\n' % (source_name, color))
+    return
+
+
+def add_cylinder_gate_v2(mac_file, sec_idx, rod_idx, x, y, z, r, h, activity, color, add_non_collinearity):
+    source_name = 'rod_%d_%d' % (sec_idx, rod_idx)
+    mac_file.write('/gate/source/addSource %s\n' % source_name)
+    mac_file.write('/gate/source/%s/setType backtoback\n' % source_name)
+    if add_non_collinearity:
+        mac_file.write('/gate/source/%s/setAccolinearityFlag True\n' % source_name)
+        mac_file.write('/gate/source/%s/setAccoValue 0.5 deg\n' % source_name)
+    mac_file.write('/gate/source/%s/gps/pos/type Volume\n' % source_name)
+    mac_file.write('/gate/source/%s/gps/pos/shape Cylinder\n' % source_name)
+    mac_file.write('/gate/source/%s/gps/pos/radius %1.3f mm\n' % (source_name, r))
+    mac_file.write('/gate/source/%s/gps/pos/halfz %1.3f mm\n' % (source_name, h / 2))
+    mac_file.write('/gate/source/%s/gps/pos/centre %1.3f %1.3f %1.3f mm\n' % (source_name, x, y, z))
+    mac_file.write('/gate/source/%s/gps/particle gamma\n' % source_name)
+    mac_file.write('/gate/source/%s/gps/ene/type Mono\n' % source_name)
+    mac_file.write('/gate/source/%s/gps/ene/mono 511 keV\n' % source_name)
+    mac_file.write('/gate/source/%s/gps/ang/type iso\n' % source_name)
     mac_file.write('/gate/source/%s/setActivity %1.3f Bq\n' % (source_name, activity))
     mac_file.write('/gate/source/%s/visualize 100 %s 5\n' % (source_name, color))
     return
