@@ -11,7 +11,7 @@ from pickle import dump
 import matplotlib.pyplot as plt
 
 # Auxiliary functions
-from build_derenzo_phantom import get_derenzo_parameters
+from get_derenzo_parameters import get_derenzo_parameters
 from CASToR.read_interfile import read_interfile
 
 
