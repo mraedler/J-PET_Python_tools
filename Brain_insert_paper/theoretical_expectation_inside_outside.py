@@ -55,9 +55,14 @@ def main():
     n_tbbi_6_30 = np.trapezoid(d_tbbi_6_30, x=p_over_l)
     n_bibi_6_30 = np.trapezoid(d_bibi_6_30, x=p_over_l)
 
-    fwhm_tbtb_6_30 = np.trapezoid(d_tbtb_6_30 * fwhm_2, x=p_over_l) / n_tbtb_6_30
-    fwhm_tbbi_6_30 = np.trapezoid(d_tbbi_6_30 * fwhm_2, x=p_over_l) / n_tbbi_6_30
-    fwhm_bibi_6_30 = np.trapezoid(d_bibi_6_30 * fwhm_2, x=p_over_l) / n_bibi_6_30
+    # fwhm_tbtb_6_30 = np.trapezoid(d_tbtb_6_30 * fwhm_2, x=p_over_l) / n_tbtb_6_30
+    # fwhm_tbbi_6_30 = np.trapezoid(d_tbbi_6_30 * fwhm_2, x=p_over_l) / n_tbbi_6_30
+    # fwhm_bibi_6_30 = np.trapezoid(d_bibi_6_30 * fwhm_2, x=p_over_l) / n_bibi_6_30
+
+    # Alternative: addition in quadrature (Pythagorean addition)
+    fwhm_tbtb_6_30 = np.sqrt(np.trapezoid(d_tbtb_6_30 * fwhm_2 ** 2, x=p_over_l) / n_tbtb_6_30)
+    fwhm_tbbi_6_30 = np.sqrt(np.trapezoid(d_tbbi_6_30 * fwhm_2 ** 2, x=p_over_l) / n_tbbi_6_30)
+    fwhm_bibi_6_30 = np.sqrt(np.trapezoid(d_bibi_6_30 * fwhm_2 ** 2, x=p_over_l) / n_bibi_6_30)
 
     print('Variant 1\n---------')
     # print('ALL a: %1.2f mm (%1.1f %%)' % (np.trapezoid(d_all_6_30 * fwhm_2, x=p_over_l) / n_all_6_30, n_all_6_30 * 100))
@@ -72,9 +77,14 @@ def main():
     n_tbbi_4_18 = np.trapezoid(d_tbbi_4_18, x=p_over_l)
     n_bibi_4_18 = np.trapezoid(d_bibi_4_18, x=p_over_l)
 
-    fwhm_tbtb_4_18 = np.trapezoid(d_tbtb_4_18 * fwhm_2, x=p_over_l) / n_tbtb_4_18
-    fwhm_tbbi_4_18 = np.trapezoid(d_tbbi_4_18 * fwhm_12, x=p_over_l) / n_tbbi_4_18
-    fwhm_bibi_4_18 = np.trapezoid(d_bibi_4_18 * fwhm_1, x=p_over_l) / n_bibi_4_18
+    # fwhm_tbtb_4_18 = np.trapezoid(d_tbtb_4_18 * fwhm_2, x=p_over_l) / n_tbtb_4_18
+    # fwhm_tbbi_4_18 = np.trapezoid(d_tbbi_4_18 * fwhm_12, x=p_over_l) / n_tbbi_4_18
+    # fwhm_bibi_4_18 = np.trapezoid(d_bibi_4_18 * fwhm_1, x=p_over_l) / n_bibi_4_18
+
+    # Alternative: addition in quadrature (Pythagorean addition)
+    fwhm_tbtb_4_18 = np.sqrt(np.trapezoid(d_tbtb_4_18 * fwhm_2 ** 2, x=p_over_l) / n_tbtb_4_18)
+    fwhm_tbbi_4_18 = np.sqrt(np.trapezoid(d_tbbi_4_18 * fwhm_12 ** 2, x=p_over_l) / n_tbbi_4_18)
+    fwhm_bibi_4_18 = np.sqrt(np.trapezoid(d_bibi_4_18 * fwhm_1 ** 2, x=p_over_l) / n_bibi_4_18)
 
     print('Variant 2\n---------')
     print('ALL a: %1.2f mm (%1.1f %%)' % ((n_tbtb_4_18 * fwhm_tbtb_4_18 + n_tbbi_4_18 * fwhm_tbbi_4_18 + n_bibi_4_18 * fwhm_bibi_4_18) / n_all_4_18, n_all_4_18 * 100))
