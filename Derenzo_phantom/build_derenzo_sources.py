@@ -14,24 +14,23 @@ from get_derenzo_parameters import get_derenzo_parameters
 def main():
     # get_triangles_parameters(visualize=True)
     x, y, r, activities = get_derenzo_parameters(scaling_factor=3., visualize=True)
-    sys.exit()
+    # sys.exit()
 
     # Additional parameters
     # z_shift = -815.0  # mm (previous version)
-    # z_shift = 755.0  # mm (inside the brain insert)
-    z_shift = -755.0  # mm (on the opposite side of the brian insert)
+    z_shift = 755.0  # mm (inside the brain insert)
+    # z_shift = -755.0  # mm (on the opposite side of the brian insert)
 
     length = 50.0  # mm
-
-    add_non_collinearity = True
 
     colors = np.array(['white', 'green', 'blue', 'cyan', 'magenta', 'yellow'])
 
     # mac_file = open('/home/martin/J-PET/Gate_mac_9.3/TB_J-PET_Brain_9.3/Sources/Derenzo_Cox.mac', 'w')
     # mac_file = open('/home/martin/J-PET/Gate_mac_9.4/New_TB_J-PET_Brain/Sources/Derenzo_Cox_3.mac', 'w')
+    mac_file = open('/home/martin/J-PET/Gate_mac_9.4/New_TB_J-PET_Brain/Sources/Derenzo_Cox_3_F18.mac', 'w')
     # mac_file = open('/home/martin/J-PET/Gate_mac_9.4/New_TB_J-PET_Brain/Sources/Derenzo_Cox_3_outside.mac', 'w')
     # mac_file = open('/home/martin/J-PET/Gate_mac_9.4/New_TB_J-PET_Brain/Sources/Derenzo_Cox_3_non_collinearity.mac', 'w')
-    mac_file = open('/home/martin/J-PET/Gate_mac_9.4/New_TB_J-PET_Brain/Sources/Derenzo_Cox_3_outside_non_collinearity.mac', 'w')
+    # mac_file = open('/home/martin/J-PET/Gate_mac_9.4/New_TB_J-PET_Brain/Sources/Derenzo_Cox_3_outside_non_collinearity.mac', 'w')
 
     mac_file.write('#=====================================================\n'
                    '#   PYTHON GENERATED GATE CODE FOR THE CONSTRUCTION\n'
@@ -42,8 +41,11 @@ def main():
         mac_file.write('\n# Segment %d\n###########\n' % ii)
         for jj in range(x[ii].size):
             mac_file.write('\n# Rod %d\n' % jj)
-            # add_cylinder_gate(mac_file, ii, jj, x[ii][jj], y[ii][jj], z_shift, r[ii][jj], length, activities[ii], colors[ii], add_non_collinearity)
-            add_cylinder_gate_v2(mac_file, ii, jj, x[ii][jj], y[ii][jj], z_shift, r[ii][jj], length, activities[ii], colors[ii], add_non_collinearity)
+            # add_cylinder_gate(mac_file, ii, jj, x[ii][jj], y[ii][jj], z_shift, r[ii][jj], length, activities[ii], colors[ii], False)
+            # add_cylinder_gate_v2(mac_file, ii, jj, x[ii][jj], y[ii][jj], z_shift, r[ii][jj], length, activities[ii], colors[ii], True)
+            # add_cylinder_source_back_to_back(mac_file, ii, jj, x[ii][jj], y[ii][jj], z_shift, r[ii][jj], length, activities[ii], colors[ii])
+            # add_cylinder_source_back_to_back_with_non_collinearity(mac_file, ii, jj, x[ii][jj], y[ii][jj], z_shift, r[ii][jj], length, activities[ii], colors[ii])
+            add_cylinder_source_fluorine_18(mac_file, ii, jj, x[ii][jj], y[ii][jj], z_shift, r[ii][jj], length, activities[ii], colors[ii])
 
     mac_file.close()
 
@@ -89,7 +91,66 @@ def add_cylinder_gate_v2(mac_file, sec_idx, rod_idx, x, y, z, r, h, activity, co
     mac_file.write('/gate/source/%s/gps/ang/type iso\n' % source_name)
     mac_file.write('/gate/source/%s/setActivity %1.3f Bq\n' % (source_name, activity))
     mac_file.write('/gate/source/%s/visualize 100 %s 5\n' % (source_name, color))
-    return
+    return None
+
+
+def add_cylinder_source_back_to_back(mac_file, sec_idx, rod_idx, x, y, z, r, h, activity, color):
+    source_name = 'rod_%d_%d' % (sec_idx, rod_idx)
+    mac_file.write('/gate/source/addSource %s\n' % source_name)
+    mac_file.write('/gate/source/%s/setType backtoback\n' % source_name)
+    mac_file.write('/gate/source/%s/gps/pos/type Volume\n' % source_name)
+    mac_file.write('/gate/source/%s/gps/pos/shape Cylinder\n' % source_name)
+    mac_file.write('/gate/source/%s/gps/pos/radius %1.3f mm\n' % (source_name, r))
+    mac_file.write('/gate/source/%s/gps/pos/halfz %1.3f mm\n' % (source_name, h / 2))
+    mac_file.write('/gate/source/%s/gps/pos/centre %1.3f %1.3f %1.3f mm\n' % (source_name, x, y, z))
+    mac_file.write('/gate/source/%s/gps/particle gamma\n' % source_name)
+    mac_file.write('/gate/source/%s/gps/ene/type Mono\n' % source_name)
+    mac_file.write('/gate/source/%s/gps/ene/mono 511 keV\n' % source_name)
+    mac_file.write('/gate/source/%s/gps/ang/type iso\n' % source_name)
+    mac_file.write('/gate/source/%s/setActivity %1.3f Bq\n' % (source_name, activity))
+    mac_file.write('/gate/source/%s/visualize 100 %s 5\n' % (source_name, color))
+    return None
+
+
+def add_cylinder_source_back_to_back_with_non_collinearity(mac_file, sec_idx, rod_idx, x, y, z, r, h, activity, color):
+    source_name = 'rod_%d_%d' % (sec_idx, rod_idx)
+    mac_file.write('/gate/source/addSource %s\n' % source_name)
+    mac_file.write('/gate/source/%s/setType backtoback\n' % source_name)
+    mac_file.write('/gate/source/%s/setAccolinearityFlag True\n' % source_name)
+    mac_file.write('/gate/source/%s/setAccoValue 0.5 deg\n' % source_name)
+    mac_file.write('/gate/source/%s/gps/pos/type Volume\n' % source_name)
+    mac_file.write('/gate/source/%s/gps/pos/shape Cylinder\n' % source_name)
+    mac_file.write('/gate/source/%s/gps/pos/radius %1.3f mm\n' % (source_name, r))
+    mac_file.write('/gate/source/%s/gps/pos/halfz %1.3f mm\n' % (source_name, h / 2))
+    mac_file.write('/gate/source/%s/gps/pos/centre %1.3f %1.3f %1.3f mm\n' % (source_name, x, y, z))
+    mac_file.write('/gate/source/%s/gps/particle gamma\n' % source_name)
+    mac_file.write('/gate/source/%s/gps/ene/type Mono\n' % source_name)
+    mac_file.write('/gate/source/%s/gps/ene/mono 511 keV\n' % source_name)
+    mac_file.write('/gate/source/%s/gps/ang/type iso\n' % source_name)
+    mac_file.write('/gate/source/%s/setActivity %1.3f Bq\n' % (source_name, activity))
+    mac_file.write('/gate/source/%s/visualize 100 %s 5\n' % (source_name, color))
+    return None
+
+
+def add_cylinder_source_fluorine_18(mac_file, sec_idx, rod_idx, x, y, z, r, h, activity, color):
+    source_name = 'rod_%d_%d' % (sec_idx, rod_idx)
+    mac_file.write('/gate/source/addSource %s\n' % source_name)
+    mac_file.write('/gate/source/%s/gps/particle e+\n' % source_name)
+    mac_file.write('/gate/source/%s/gps/energytype Fluor18\n' % source_name)
+    mac_file.write('/gate/source/%s/setForcedUnstableFlag true\n' % source_name)
+    mac_file.write('/gate/source/%s/setForcedHalfLife 6584 s\n' % source_name)
+    mac_file.write('/gate/source/%s/gps/pos/type Volume\n' % source_name)
+    mac_file.write('/gate/source/%s/gps/pos/shape Cylinder\n' % source_name)
+    mac_file.write('/gate/source/%s/gps/pos/radius %1.3f mm\n' % (source_name, r))
+    mac_file.write('/gate/source/%s/gps/pos/halfz %1.3f mm\n' % (source_name, h / 2))
+    mac_file.write('/gate/source/%s/gps/pos/centre %1.3f %1.3f %1.3f mm\n' % (source_name, x, y, z))
+    mac_file.write('/gate/source/%s/gps/particle gamma\n' % source_name)
+    mac_file.write('/gate/source/%s/gps/ene/type Mono\n' % source_name)
+    mac_file.write('/gate/source/%s/gps/ene/mono 511 keV\n' % source_name)
+    mac_file.write('/gate/source/%s/gps/ang/type iso\n' % source_name)
+    mac_file.write('/gate/source/%s/setActivity %1.3f Bq\n' % (source_name, activity))
+    mac_file.write('/gate/source/%s/visualize 100 %s 5\n' % (source_name, color))
+    return None
 
 
 if __name__ == "__main__":
