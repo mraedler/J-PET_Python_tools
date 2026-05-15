@@ -60,17 +60,30 @@ def main():
     # fwhm_bibi_6_30 = np.trapezoid(d_bibi_6_30 * fwhm_2, x=p_over_l) / n_bibi_6_30
 
     # Alternative: addition in quadrature (Pythagorean addition)
-    fwhm_tbtb_6_30 = np.sqrt(np.trapezoid(d_tbtb_6_30 * fwhm_2 ** 2, x=p_over_l) / n_tbtb_6_30)
-    fwhm_tbbi_6_30 = np.sqrt(np.trapezoid(d_tbbi_6_30 * fwhm_2 ** 2, x=p_over_l) / n_tbbi_6_30)
-    fwhm_bibi_6_30 = np.sqrt(np.trapezoid(d_bibi_6_30 * fwhm_2 ** 2, x=p_over_l) / n_bibi_6_30)
+    fwhm_tbtb_6_30_quadratic = np.sqrt(np.trapezoid(d_tbtb_6_30 * fwhm_2 ** 2, x=p_over_l) / n_tbtb_6_30)
+    fwhm_tbbi_6_30_quadratic = np.sqrt(np.trapezoid(d_tbbi_6_30 * fwhm_2 ** 2, x=p_over_l) / n_tbbi_6_30)
+    fwhm_bibi_6_30_quadratic = np.sqrt(np.trapezoid(d_bibi_6_30 * fwhm_2 ** 2, x=p_over_l) / n_bibi_6_30)
+
+    # Alternative 2
+    fwhm_tbtb_6_30_harmonic = 1 / (np.trapezoid(d_tbtb_6_30 / fwhm_2, x=p_over_l) / n_tbtb_6_30)
+    fwhm_tbbi_6_30_harmonic = 1 / (np.trapezoid(d_tbbi_6_30 / fwhm_2, x=p_over_l) / n_tbbi_6_30)
+    fwhm_bibi_6_30_harmonic = 1 / (np.trapezoid(d_bibi_6_30 / fwhm_2, x=p_over_l) / n_bibi_6_30)
+
+    weights = np.array([n_tbtb_6_30, n_tbbi_6_30, n_bibi_6_30])
+    fwhm_all_6_30_quadratic = generalized_mean(weights, np.array([fwhm_tbtb_6_30_quadratic, fwhm_tbbi_6_30_quadratic, fwhm_bibi_6_30_quadratic]), p=2)
+    fwhm_all_6_30_harmonic = generalized_mean(weights, np.array([fwhm_tbtb_6_30_harmonic, fwhm_tbbi_6_30_harmonic, fwhm_bibi_6_30_harmonic]), p=-1)
 
     print('Variant 1\n---------')
-    # print('ALL a: %1.2f mm (%1.1f %%)' % (np.trapezoid(d_all_6_30 * fwhm_2, x=p_over_l) / n_all_6_30, n_all_6_30 * 100))
-    print('ALL a: %1.2f mm (%1.1f %%)' % ((n_tbtb_6_30 * fwhm_tbtb_6_30 + n_tbbi_6_30 * fwhm_tbbi_6_30 + n_bibi_6_30 * fwhm_bibi_6_30) / n_all_6_30, n_all_6_30 * 100))
-    print('ALL h: %1.2f mm (%1.1f %%)' % (n_all_6_30 / (n_tbtb_6_30 / fwhm_tbtb_6_30 + n_tbbi_6_30 / fwhm_tbbi_6_30 + n_bibi_6_30 / fwhm_bibi_6_30), n_all_6_30 * 100))
-    print('TB-TB: %1.2f mm (%1.1f %%)' % (fwhm_tbtb_6_30, n_tbtb_6_30 * 100))
-    print('TB-BI: %1.2f mm (%1.1f %%)' % (fwhm_tbbi_6_30, n_tbbi_6_30 * 100))
-    print('BI-BI: %1.2f mm (%1.1f %%)\n' % (fwhm_bibi_6_30, n_bibi_6_30 * 100))
+    print('Quadratic mean')
+    print('ALL: %1.2f mm (%1.1f %%)' % (fwhm_all_6_30_quadratic, n_all_6_30 * 100))
+    print('TB-TB: %1.2f mm (%1.1f %%)' % (fwhm_tbtb_6_30_quadratic, n_tbtb_6_30 * 100))
+    print('TB-BI: %1.2f mm (%1.1f %%)' % (fwhm_tbbi_6_30_quadratic, n_tbbi_6_30 * 100))
+    print('BI-BI: %1.2f mm (%1.1f %%)\n' % (fwhm_bibi_6_30_quadratic, n_bibi_6_30 * 100))
+    print('Harmonic mean')
+    print('ALL: %1.2f mm (%1.1f %%)' % (fwhm_all_6_30_harmonic, n_all_6_30 * 100))
+    print('TB-TB: %1.2f mm (%1.1f %%)' % (fwhm_tbtb_6_30_harmonic, n_tbtb_6_30 * 100))
+    print('TB-BI: %1.2f mm (%1.1f %%)' % (fwhm_tbbi_6_30_harmonic, n_tbbi_6_30 * 100))
+    print('BI-BI: %1.2f mm (%1.1f %%)\n' % (fwhm_bibi_6_30_harmonic, n_bibi_6_30 * 100))
 
     n_all_4_18 = np.trapezoid(d_all_4_18, x=p_over_l)
     n_tbtb_4_18 = np.trapezoid(d_tbtb_4_18, x=p_over_l)
@@ -82,22 +95,42 @@ def main():
     # fwhm_bibi_4_18 = np.trapezoid(d_bibi_4_18 * fwhm_1, x=p_over_l) / n_bibi_4_18
 
     # Alternative: addition in quadrature (Pythagorean addition)
-    fwhm_tbtb_4_18 = np.sqrt(np.trapezoid(d_tbtb_4_18 * fwhm_2 ** 2, x=p_over_l) / n_tbtb_4_18)
-    fwhm_tbbi_4_18 = np.sqrt(np.trapezoid(d_tbbi_4_18 * fwhm_12 ** 2, x=p_over_l) / n_tbbi_4_18)
-    fwhm_bibi_4_18 = np.sqrt(np.trapezoid(d_bibi_4_18 * fwhm_1 ** 2, x=p_over_l) / n_bibi_4_18)
+    fwhm_tbtb_4_18_quadratic = np.sqrt(np.trapezoid(d_tbtb_4_18 * fwhm_2 ** 2, x=p_over_l) / n_tbtb_4_18)
+    fwhm_tbbi_4_18_quadratic = np.sqrt(np.trapezoid(d_tbbi_4_18 * fwhm_12 ** 2, x=p_over_l) / n_tbbi_4_18)
+    fwhm_bibi_4_18_quadratic = np.sqrt(np.trapezoid(d_bibi_4_18 * fwhm_1 ** 2, x=p_over_l) / n_bibi_4_18)
+
+    # Alternative 2
+    fwhm_tbtb_4_18_harmonic = 1 / (np.trapezoid(d_tbtb_4_18 / fwhm_2, x=p_over_l) / n_tbtb_4_18)
+    fwhm_tbbi_4_18_harmonic = 1 / (np.trapezoid(d_tbbi_4_18 / fwhm_12, x=p_over_l) / n_tbbi_4_18)
+    fwhm_bibi_4_18_harmonic = 1 / (np.trapezoid(d_bibi_4_18 / fwhm_1, x=p_over_l) / n_bibi_4_18)
+
+    weights = np.array([n_tbtb_4_18, n_tbbi_4_18, n_bibi_4_18])
+
+    fwhm_all_4_18_quadratic = generalized_mean(weights, np.array([fwhm_tbtb_4_18_quadratic, fwhm_tbbi_4_18_quadratic, fwhm_bibi_4_18_quadratic]), p=2)
+    fwhm_all_4_18_harmonic = generalized_mean(weights, np.array([fwhm_tbtb_4_18_harmonic, fwhm_tbbi_4_18_harmonic, fwhm_bibi_4_18_harmonic]), p=-1)
 
     print('Variant 2\n---------')
-    print('ALL a: %1.2f mm (%1.1f %%)' % ((n_tbtb_4_18 * fwhm_tbtb_4_18 + n_tbbi_4_18 * fwhm_tbbi_4_18 + n_bibi_4_18 * fwhm_bibi_4_18) / n_all_4_18, n_all_4_18 * 100))
-    print('ALL h: %1.2f mm (%1.1f %%)' % (n_all_4_18 / (n_tbtb_4_18 / fwhm_tbtb_4_18 + n_tbbi_4_18 / fwhm_tbbi_4_18 + n_bibi_4_18 / fwhm_bibi_4_18), n_all_4_18 * 100))
-    print('TB-TB: %1.2f mm (%1.1f %%)' % (fwhm_tbtb_4_18, n_tbtb_4_18 * 100))
-    print('TB-BI: %1.2f mm (%1.1f %%)' % (fwhm_tbbi_4_18, n_tbbi_4_18 * 100))
-    print('BI-BI: %1.2f mm (%1.1f %%)\n' % (fwhm_bibi_4_18, n_bibi_4_18 * 100))
+    print('Quadratic mean')
+    print('ALL q: %1.2f mm (%1.1f %%)' % (fwhm_all_4_18_quadratic, n_all_4_18 * 100))
+    print('TB-TB: %1.2f mm (%1.1f %%)' % (fwhm_tbtb_4_18_quadratic, n_tbtb_4_18 * 100))
+    print('TB-BI: %1.2f mm (%1.1f %%)' % (fwhm_tbbi_4_18_quadratic, n_tbbi_4_18 * 100))
+    print('BI-BI: %1.2f mm (%1.1f %%)\n' % (fwhm_bibi_4_18_quadratic, n_bibi_4_18 * 100))
+    print('Harmonic mean')
+    print('ALL q: %1.2f mm (%1.1f %%)' % (fwhm_all_4_18_harmonic, n_all_4_18 * 100))
+    print('TB-TB: %1.2f mm (%1.1f %%)' % (fwhm_tbtb_4_18_harmonic, n_tbtb_4_18 * 100))
+    print('TB-BI: %1.2f mm (%1.1f %%)' % (fwhm_tbbi_4_18_harmonic, n_tbbi_4_18 * 100))
+    print('BI-BI: %1.2f mm (%1.1f %%)\n' % (fwhm_bibi_4_18_harmonic, n_bibi_4_18 * 100))
 
     print('Mean of TB-BI\n-------------')
     print('Variant 1: %1.3f' % (np.trapezoid(d_tbbi_6_30 * p_over_l, x=p_over_l) / n_tbbi_6_30))
     print('Variant 2: %1.3f' % (np.trapezoid(d_tbbi_4_18 * p_over_l, x=p_over_l) / n_tbbi_4_18))
 
-    sys.exit()
+    fwhm_theory = np.array([[fwhm_all_6_30_quadratic, fwhm_tbtb_6_30_quadratic, fwhm_tbbi_6_30_quadratic, fwhm_bibi_6_30_quadratic],
+                            [fwhm_all_4_18_quadratic, fwhm_tbtb_4_18_quadratic, fwhm_tbbi_4_18_quadratic, fwhm_bibi_4_18_quadratic],
+                            [fwhm_all_6_30_harmonic, fwhm_tbtb_6_30_harmonic, fwhm_tbbi_6_30_harmonic, fwhm_bibi_6_30_harmonic],
+                            [fwhm_all_4_18_harmonic, fwhm_tbtb_4_18_harmonic, fwhm_tbbi_4_18_harmonic, fwhm_bibi_4_18_harmonic]])
+
+    np.save(sys.path[0] + '/Data/FWHM_theory_brain_insert_variants.npy', fwhm_theory)
 
     plt.rcParams.update({'font.size': 16})
     fig, (ax0, ax1) = plt.subplots(2, 1, figsize=(8, 8))
@@ -188,6 +221,10 @@ def load_thnd(root_file_path):
         bin_centers = bin_centers[0]
 
     return bin_edges, bin_centers, arr
+
+
+def generalized_mean(weights, values, p):
+    return (np.sum(weights * (values ** p)) / np.sum(weights)) ** (1 / p)
 
 
 if __name__ == '__main__':
