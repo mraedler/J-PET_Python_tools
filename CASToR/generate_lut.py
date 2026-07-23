@@ -60,6 +60,25 @@ def main():
     return 0
 
 
+def get_ge_discovery_mi_parameters(radius, axial_offset, delta_rings, n_rings, n_angles, n_lat, n_zed,
+                                   delta_rad, delta_lat, delta_zed, depth, transaxial, axial, fltnblut, intnblut):
+    radius.append(fltnblut(164.6))  # [mm]
+    axial_offset.append(fltnblut(755.))  # [mm]
+    delta_rings.append(fltnblut(0.))  # [mm]
+    n_rings.append(intnblut(1))
+    n_angles.append(intnblut(12))
+    n_lat.append(np.array([16, 16], dtype=intnblut))
+    n_zed.append(np.array([330, 330], dtype=intnblut))
+    delta_rad.append(np.array([-11.3, 11.3], dtype=fltnblut))  # [mm]
+    delta_lat.append(np.array([4.6, 4.6], dtype=fltnblut))  # [mm]
+    delta_zed.append(np.array([1., 1.], dtype=fltnblut))  # [mm]
+    depth.append(np.array([18., 18.], dtype=fltnblut))  # [mm]
+    transaxial.append(np.array([4., 4.], dtype=fltnblut))  # [mm]
+    axial.append(np.array([1., 1.], dtype=fltnblut))  # [mm]
+
+    return radius, axial_offset, delta_rings, n_rings, n_angles, n_lat, n_zed, delta_rad, delta_lat, delta_zed, depth, transaxial, axial
+
+
 def get_modular_scanner_parameters(radius, axial_offset, delta_rings, n_rings, n_angles, n_lat, n_zed,
                                    delta_rad, delta_lat, delta_zed, depth, transaxial, axial, fltnblut, intnblut):
     radius.append(fltnblut(381.86))  # [mm]
@@ -246,6 +265,8 @@ def generate_lut(radius, axial_offset, delta_rings,
 
     # Visualization
     visualize_lut_entries(lut, n_elements_per_layer.flatten(order='C'))
+
+    sys.exit()
 
     # Save as binary file
     open(scanner_name + '.lut', 'wb').write(lut.tobytes())
